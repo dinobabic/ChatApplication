@@ -1,0 +1,32 @@
+package com.example.chat.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.example.chat.domain.User;
+import com.example.chat.repository.UserRepository;
+
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+public class UserService {
+	
+	private final UserRepository repository;
+	
+	public User findByUsername(String username) {
+		return repository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException());
+	}
+	
+	public User save(User user) {
+		user.addAuthority("ROLE_USER");
+		return repository.save(user);
+	}
+	
+	public List<User> findAll() {
+		return repository.findAll();
+	}
+	
+}
