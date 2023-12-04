@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { VscSend } from "react-icons/vsc";
 import axios from 'axios';
-import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
+import WebSocketComponent from './WebSocketComponent';
 
 const ChatComponent = (props) => {
-    const {selectedUser, username, jwt, sendMessage} = {...props};
+    const {selectedUser, username, jwt} = {...props};
     const [chatMessage, setChatMessage] = useState({
         "senderUsername": "",
         "receiverUsername": "",
@@ -13,9 +12,23 @@ const ChatComponent = (props) => {
         "content": ""
     });
     const [messages, setMessages] = useState([]);
+    const webSocketComponenRef = useRef(null);
+    const selectedUserRef = useRef();
+    const messagesRef = useRef();
+    const chatRef = useRef(null);
+    const [updateChat, setUpdateChat] = useState(true);
+    const [scroll, setScroll] = useState(false);
+
+    useEffect(() => {
+        if (chatRef.current) {
+            chatRef.current.scrollTop = chatRef.current.scrollHeight;
+            setScroll(false);
+        }
+    }, [chatRef.current, messagesRef.current, scroll, setScroll]);
 
     useEffect(() => {
         if (selectedUser) {
+            selectedUserRef.current = selectedUser;
             axios.get(`api/users/messages/${username}/${selectedUser}`, {
                 headers: {
                   Authorization: `Bearer ${jwt}`
@@ -23,21 +36,25 @@ const ChatComponent = (props) => {
             )
             .then((response) => {
                 setMessages(response.data);
+                messagesRef.current = response.data;
+                setUpdateChat(false);
             });
         }
-    }, [selectedUser])
+    }, [selectedUser, updateChat, setUpdateChat])
 
     function updateMessage(event) {
         setChatMessage({...chatMessage, content: event.target.value});
     }
 
-    function sendMessageToUser(event) {
+    function sendMessage(event) {
         event.preventDefault();
         let message = {...chatMessage};
         message.senderUsername = username;
         message.receiverUsername = selectedUser;
         message.sentAt = new Date();
-        sendMessage(message);
+        setMessages([...messages, message]);
+        setScroll(true);
+        webSocketComponenRef.current.sendMessage(message);
         setChatMessage({
             "senderUsername": "",
             "receiverUsername": "",
@@ -45,12 +62,34 @@ const ChatComponent = (props) => {
             "content": ""
         });
     }
-    //{message.sentAt.getHours()}:{message.sentAt.getMinutes()}
+
+    function onMessageReceivedTopic(message) {
+        
+    }
+
+    function onMessageReceivedPublic(message) {
+        
+    }
+
+    function onMessageReceivedCustom(message, userIChatWithRef, userIChatWithMessagesRef) {
+        const newMessage = JSON.parse(message.body);
+        if (newMessage.senderUsername === userIChatWithRef.current) {
+            userIChatWithMessagesRef.current.push(newMessage);
+            setMessages(userIChatWithMessagesRef.current);
+            messagesRef.current = userIChatWithMessagesRef.current;
+            setUpdateChat(true);
+        }
+    }
+
     return (
         <>
+            <WebSocketComponent subscribeTopic={"/user/topic"} subscribePublic={"/user/public"} subscribeCustom={`/user/${username}/queue/messages`} 
+                        onMessageReceivedTopic={onMessageReceivedTopic} onMessageReceivedPublic={onMessageReceivedPublic} 
+                        onMessageReceivedCustom={onMessageReceivedCustom} webSocketComponenRef={webSocketComponenRef} selectedUserRef={selectedUserRef}
+                        messagesRef={messagesRef} setMessages={setMessages}></WebSocketComponent>
             {selectedUser ? 
                 <div className='flex flex-col justify-between w-3/5 px-4'>
-                    <div className='flex flex-col gap-4 overflow-y-auto py-4'>
+                    <div ref={chatRef} className='chat-div flex flex-col gap-4 overflow-y-auto py-4'>
                         {messages.map((message, index) => {
                             const date = new Date(message.sentAt);
                             return (
@@ -67,7 +106,7 @@ const ChatComponent = (props) => {
                             onChange={updateMessage}
                             type='text'
                             className='w-full shadow-md rounded-md border-2 border-slate-300 outline-none h-8 py-5 px-4 text-lg'/>
-                        <button type='submit' onClick={sendMessageToUser}>
+                        <button type='submit' onClick={sendMessage}>
                             <VscSend className='w-10 h-10 ml-2 text-green-500 cursor-pointer'/>
                         </button>
                     </form>

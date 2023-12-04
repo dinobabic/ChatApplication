@@ -2,14 +2,11 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import './App.css';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
 import Cookies from 'universal-cookie';
 import PrivateRoute from './components/PrivateRoute';
 import RegistrationPage from './pages/RegistrationPage';
-import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
-import { wait } from '@testing-library/user-event/dist/utils';
 
 function App() {
   const cookies = new Cookies();
@@ -17,10 +14,8 @@ function App() {
   const [jwtIsValid, setJwtIsValid] = useState(false);
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(false);
-  const stompClientRef = useRef(null);
-  const [stompClient, setStompClient] = useState(null);
 
-  const initializeWebSocketConnection = (body, setError, setInitializedWebSocket) => {
+  /*const initializeWebSocketConnection = (body, setError, setInitializedWebSocket) => {
     const socket = new SockJS('http://localhost:8080/ws');
     stompClientRef.current = Stomp.over(socket);
     stompClientRef.current.connect({}, () => onConnected(body, setError, setInitializedWebSocket));
@@ -84,7 +79,7 @@ function App() {
     else {
         setJwt(jwt);
     }
-  }
+  }*/
 
   useEffect(() => {
     if (jwt !== "") {
@@ -107,7 +102,7 @@ function App() {
     else {
       setLoading(false);
     }
-  }, [jwt]);
+  }, [jwt, setJwt]);
 
   return (
     !loading && 
@@ -115,14 +110,14 @@ function App() {
       <Routes>
         <Route path="/" element={
           <PrivateRoute jwtIsValid={jwtIsValid}>
-            <HomePage jwtIsValid={jwtIsValid} logout={logout} jwt={jwt} sendMessage={sendMessage}/>
+            <HomePage jwtIsValid={jwtIsValid} jwt={jwt} />
           </PrivateRoute>
         } />
         <Route path='/login' element={
-          <LoginPage initializeWebSocketConnection={initializeWebSocketConnection} authenticate={authenticate} setReload={setReload} jwtIsValid={jwtIsValid}/>
+          <LoginPage setJwt={setJwt} jwtIsValid={jwtIsValid} setReload={setReload}/>
         } />
         <Route path='/register' element={
-          <RegistrationPage initializeWebSocketConnection={initializeWebSocketConnection} register={register} setReload={setReload} jwtIsValid={jwtIsValid}/>
+          <RegistrationPage setJwt={setJwt} jwtIsValid={jwtIsValid} setReload={setReload}/>
         } />
       </Routes>
     </BrowserRouter>

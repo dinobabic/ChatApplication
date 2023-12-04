@@ -1,53 +1,51 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
+import Stomp from 'stompjs';
+import { wait } from '@testing-library/user-event/dist/utils';
 
 const WebSocketComponent = (props) => {
-    const {username} = {...props};
+    const {subscribeTopic, subscribePublic, subscribeCustom, 
+        onMessageReceivedTopic, onMessageReceivedPublic, onMessageReceivedCustom,
+        webSocketComponenRef, selectedUserRef, messagesRef, setMessages, children} = {...props};
     const [stompClient, setStompClient] = useState(null);
-    const [messages, setMessages] = useState([]);
 
     useEffect(() => {
         
         const initializeStomp = () => {
-            const socket = new SockJS('http://localhost:8080/ws');
-            const stomp = Stomp.over(socket);
-            setStompClient(stomp);
-        }
-
-        const subscribeUser = () => {
-            if (stompClient) {
-                stompClient.subscribe("/user/topic", (message) => {
-                    const newMessage  = JSON.parse(message.body);
-                    console.log(newMessage);
-                    setMessages((prevMessages) =>  [...prevMessages, ...newMessage, newMessage]);
-                });
-
-                stompClient.subscribe(`/user/${username}/queue/messages`, (message) => {
-                    const newMessage  = JSON.parse(message.body);
-                    console.log(newMessage);
-                    setMessages((prevMessages) =>  [...prevMessages, ...newMessage, newMessage]);
-                });
-
-                stompClient.subscribe("/user/public", (message) => {
-                    const newMessage  = JSON.parse(message.body);
-                    console.log(newMessage);
-                    setMessages((prevMessages) =>  [...prevMessages, ...newMessage, newMessage]);
-                });
+            if (!stompClient) {
+                const socket = new SockJS('http://localhost:8080/ws');
+                const stomp = Stomp.over(socket);
+                stomp.connect({}, () => setStompClient(stomp));
             }
         }
 
         initializeStomp();
-        subscribeUser();
 
-        return () => {
-            if (stompClient) {
-                stompClient.disconnect(() => {
-                    console.log("Discnonnected from STOMP server.");
-                });
-            }
-        }
+        return;
 
     }, [stompClient]);
+
+    useEffect(() => {
+        if (stompClient && stompClient.connected) {
+            if (subscribeTopic) {
+                stompClient.subscribe("/user/topic", (message) => {
+                    onMessageReceivedTopic(message);
+                });
+            }
+
+            if (subscribePublic) {
+                stompClient.subscribe("/user/public", (message) => {
+                    onMessageReceivedPublic(message);
+                });
+            }
+
+            if (subscribeCustom) {
+                stompClient.subscribe(subscribeCustom, (message) => {
+                    onMessageReceivedCustom(message, selectedUserRef, messagesRef, setMessages);
+                });   
+            }
+        }
+    }, [stompClient, setStompClient]);
 
     const sendMessage = (message) => {
         if (stompClient) {
@@ -73,11 +71,18 @@ const WebSocketComponent = (props) => {
         }
     }
 
-    return (
-        <div>
-            
-        </div>
-    );
+    useEffect(() => {
+        if (stompClient) {
+            webSocketComponenRef.current = {
+                authenticate,
+                register,
+                sendMessage,
+                logout
+              };
+        }
+    }, [stompClient]);
+
+    return children;
 };
 
 export default WebSocketComponent;

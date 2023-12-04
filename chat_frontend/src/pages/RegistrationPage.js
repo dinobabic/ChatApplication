@@ -5,7 +5,7 @@ import NavigationComponent from '../components/NavigationComponent';
 import RegistrationComponent from '../components/RegistrationComponent';
 
 const RegistrationPage = (props) => {
-    const {initializeWebSocketConnection, register, setReload, jwtIsValid} = {...props};
+    const {setJwt, jwtIsValid, setReload} = {...props};
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -17,7 +17,7 @@ const RegistrationPage = (props) => {
     return (
         <>
             <NavigationComponent />
-            <RegistrationComponent initializeWebSocketConnection={initializeWebSocketConnection} register={register} setReload={setReload}/>
+            <RegistrationComponent setJwt={setJwt} setReload={setReload}/>
         </>
     );
 };

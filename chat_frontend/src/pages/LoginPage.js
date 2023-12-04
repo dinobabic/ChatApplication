@@ -4,7 +4,7 @@ import LoginComponent from '../components/LoginComponent';
 import NavigationComponent from '../components/NavigationComponent';
 
 const LoginPage = (props) => {
-    const {initializeWebSocketConnection, authenticate, setReload, jwtIsValid} = {...props};
+    const {setJwt, jwtIsValid, setReload} = {...props};
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -16,7 +16,7 @@ const LoginPage = (props) => {
     return (
         <>
             <NavigationComponent />
-            <LoginComponent initializeWebSocketConnection={initializeWebSocketConnection} authenticate={authenticate} setReload={setReload}/>
+            <LoginComponent setJwt={setJwt} setReload={setReload}/>
         </>
     );
 };

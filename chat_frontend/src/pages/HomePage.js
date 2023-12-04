@@ -6,7 +6,7 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 
 const HomePage = (props) => {
-    const {jwtIsValid, jwt, logout, sendMessage} = {...props};
+    const {jwtIsValid, jwt} = {...props};
     const [chatRooms, setChatRooms] = useState([]);
     const [usrename, setUsername] = useState("");
     const [change, setChange] = useState(false);
@@ -29,9 +29,9 @@ const HomePage = (props) => {
     
     return (
         <>
-            <NavigationComponent jwtIsValid={jwtIsValid} jwt={jwt} logout={logout}/>
+            <NavigationComponent jwtIsValid={jwtIsValid} jwt={jwt}/>
             <SearchUsersComponent jwt={jwt} chatRooms={chatRooms} setChatRooms={setChatRooms} setChange={setChange}/>
-            <MainComponent chatRooms={chatRooms} username={usrename} jwt={jwt} sendMessage={sendMessage}/>
+            <MainComponent chatRooms={chatRooms} username={usrename} jwt={jwt}/>
         </>
     );
 };

@@ -105,15 +105,14 @@ public class UserController {
 				.chatRoom(chatRoom)
 				.build();
 		message = messageService.save(message);
-		messagingTemplate.convertAndSendToUser(
-			message.getReceiver().getUsername(),
-			"/queue/messages",
+		messagingTemplate.convertAndSend(
+			"/user/" + messageDto.getReceiverUsername() + "/queue/messages",
 			MessageNotification.builder()
 				.senderUsername(message.getSender().getUsername())
 				.receiverUsername(message.getReceiver().getUsername())
 				.content(message.getContent())
-				.chatId(message.getChatRoom().getId())
-				.build());	
+				.sentAt(messageDto.getSentAt())
+				.build());
 	}
 	
 	@GetMapping("/messages/{sender}/{receiver}")

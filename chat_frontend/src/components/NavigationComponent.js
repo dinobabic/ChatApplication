@@ -1,14 +1,16 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import WhatsAppIcon from "../images/favicon.ico";
 import Cookies from 'universal-cookie';
 import {useNavigate} from "react-router-dom"
 import { jwtDecode } from 'jwt-decode';
+import WebSocketComponent from './WebSocketComponent';
 
 const NavigationComponent = (props) => {
     const cookies = new Cookies();
-    let {jwtIsValid, logout, jwt} = {...props};
+    let {jwtIsValid, jwt} = {...props};
     const [username, setUsername] = useState("");
     const navigate = useNavigate();
+    const webSocketComponenRef = useRef(null);
 
     useEffect(() => {
         if (jwt) {
@@ -17,9 +19,9 @@ const NavigationComponent = (props) => {
         }
     }, []);
     
-    function logoutUser() {
+    function logout() {
         cookies.remove("jwt");
-        logout({
+        webSocketComponenRef.current.logout({
             "username": username
         });
         window.location.reload();
@@ -37,7 +39,11 @@ const NavigationComponent = (props) => {
             </div>
             {jwtIsValid && <p className='text-white text-3xl'>Hello{username !== "" ? `, ${username}` : ""}</p>}
             {!jwtIsValid && <p className='text-white text-3xl'>Hello</p>}
-            {jwtIsValid && <p className='text-white text-xl cursor-pointer hover:border-b-2' onClick={logoutUser}>Log Out</p>}
+            {jwtIsValid && 
+                <WebSocketComponent webSocketComponenRef={webSocketComponenRef}>
+                    <p className='text-white text-xl cursor-pointer hover:border-b-2' onClick={logout}>Log Out</p>
+                </WebSocketComponent>
+            }
             {!jwtIsValid && <p className='text-white text-xl cursor-pointer hover:border-b-2' onClick={register}>Register</p>}
         </div>
     );
