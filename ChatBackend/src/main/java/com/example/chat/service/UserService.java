@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.example.chat.domain.User;
+import com.example.chat.dto.UsernameDto;
 import com.example.chat.repository.UserRepository;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -27,6 +28,12 @@ public class UserService {
 	
 	public List<User> findAll() {
 		return repository.findAll();
+	}
+
+	public void disconnect(UsernameDto usernameDto) {
+		User user = repository.findByUsername(usernameDto.getUsername()).get();
+		user.setStatus("OFFLINE");
+		repository.save(user);
 	}
 	
 }

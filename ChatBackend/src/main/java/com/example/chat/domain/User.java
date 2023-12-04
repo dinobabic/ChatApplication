@@ -83,6 +83,13 @@ public class User implements UserDetails {
 		newAuthority.setUser(this);	
 		authorities.add(newAuthority);
 	}
+	
+	public void addChatRoom(ChatRoom chatRoom) {
+		if (chatRooms == null) {
+			chatRooms = new HashSet<>();
+		}
+		chatRooms.add(chatRoom);
+	}
 
 	@Override
 	public boolean isAccountNonExpired() {
