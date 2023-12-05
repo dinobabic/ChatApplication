@@ -13,7 +13,7 @@ const WebSocketComponent = (props) => {
         
         const initializeStomp = () => {
             if (!stompClient) {
-                const socket = new SockJS('/ws');
+                const socket = new SockJS('wss://kajimaapp.onrender.com');
                 const stomp = Stomp.over(socket);
                 stomp.connect({}, () => setStompClient(stomp));
             }

@@ -18,14 +18,4 @@ module.exports = function (app) {
       changeOrigin: true,
     })
   );
-
-  // Proxy WebSocket requests
-  app.use(
-    '/ws',
-    proxy({
-      target: 'http://localhost:8080/',
-      ws: true,  // Enable WebSocket proxying
-      changeOrigin: true,
-    })
-  );
 };
