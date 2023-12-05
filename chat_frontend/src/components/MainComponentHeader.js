@@ -10,7 +10,7 @@ const MainComponentHeader = (props) => {
     useEffect(() => {
         setSelectedUserDB(null);
         if (selectedUser) {
-            axios.get(`api/users/status/${selectedUser}`, {
+            axios.get(`/api/users/status/${selectedUser}`, {
                 headers: {
                   Authorization: `Bearer ${jwt}`
                 }}
@@ -32,7 +32,7 @@ const MainComponentHeader = (props) => {
     };
 
     const deleteMessages = () => {
-        axios.delete(`api/users/delete/messages/${username}/${selectedUser}`, {
+        axios.delete(`/api/users/delete/messages/${username}/${selectedUser}`, {
             headers: {
               Authorization: `Bearer ${jwt}`
             }});
@@ -40,7 +40,7 @@ const MainComponentHeader = (props) => {
     };
 
     const deleteContact = () => {
-        axios.delete(`api/users/delete/chatRoom/${username}/${selectedUser}`, {
+        axios.delete(`/api/users/delete/chatRoom/${username}/${selectedUser}`, {
             headers: {
               Authorization: `Bearer ${jwt}`
             }});

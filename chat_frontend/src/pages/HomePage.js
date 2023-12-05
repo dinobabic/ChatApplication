@@ -16,7 +16,7 @@ const HomePage = (props) => {
         const jwtDecoded = jwtDecode(jwt);
         setUsername(jwtDecoded.username);
 
-        axios.get("api/users/getChatRooms", {
+        axios.get("/api/users/getChatRooms", {
             headers: {
               Authorization: `Bearer ${jwt}`
             }})

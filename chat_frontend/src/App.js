@@ -15,75 +15,9 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [reload, setReload] = useState(false);
 
-  /*const initializeWebSocketConnection = (body, setError, setInitializedWebSocket) => {
-    const socket = new SockJS('http://localhost:8080/ws');
-    stompClientRef.current = Stomp.over(socket);
-    stompClientRef.current.connect({}, () => onConnected(body, setError, setInitializedWebSocket));
-  };
-
-  const onConnected = (body, setError, setInitializedWebSocket) => {
-    stompClientRef.current.subscribe(`/user/${body.username}/queue/messages`, (message) => console.log(message));
-    stompClientRef.current.subscribe(`/user/public`, onMessageReceived);
-    stompClientRef.current.subscribe(`/user/topic`, (message) => onMessageTokenReceived(message, setError));
-    setStompClient(stompClientRef.current);
-    setInitializedWebSocket(true);
-  }
-
-  const initializeWebSocket = (body) => {
-    return new Promise((resolve, reject) => {
-      const socket = new SockJS('http://localhost:8080/ws');
-      stompClientRef.current = Stomp.over(socket);
-      stompClientRef.current.connect({}, () => {
-        stompClientRef.current.subscribe(`/user/${body.username}/queue/messages`, onMessageReceived);
-        stompClientRef.current.subscribe(`/user/public`, onMessageReceived);
-        stompClientRef.current.subscribe(`/user/topc`, onMessageReceived);
-      });
-      setStompClient(stompClientRef.current);
-      resolve(stompClientRef.current);
-    });
-  }
-
-  const logout = async (body) => {
-    const tmpStompClient = await initializeWebSocket(body);
-    await wait(1000);
-    tmpStompClient.send(`/app/user.disconnectUser`, {}, JSON.stringify(body));
-  }
-
-  const sendMessage = async (body) => {
-    const tmpStompClient = await initializeWebSocket(body);
-    await wait(1000);
-    tmpStompClient.send(`/app/chat`, {}, JSON.stringify(body));
-  }
-
-  const authenticate = (body) => {
-    stompClient.send(`/app/authenticate/user.addUser`, 
-        {}, 
-        JSON.stringify(body));
-  }
-
-  const register = (body) => {
-    stompClient.send(`/app/register/user.addUser`, 
-      {}, 
-      JSON.stringify(body));
-  }
-
-  const onMessageReceived = (message) => {
-    console.log(message);
-  }
-
-  const onMessageTokenReceived = (message, setError) => {
-    const jwt = JSON.parse(message.body).body.token;
-    if (jwt === "") {
-        setError(true);
-    }
-    else {
-        setJwt(jwt);
-    }
-  }*/
-
   useEffect(() => {
     if (jwt !== "") {
-      axios.get("api/auth/validate", {
+      axios.get("/api/auth/validate", {
         params: {
           token: jwt
         }
