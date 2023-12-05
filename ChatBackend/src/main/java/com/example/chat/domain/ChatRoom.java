@@ -5,31 +5,29 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @Entity
 @Table
 public class ChatRoom {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private String id;
 	
-	@ManyToMany(mappedBy = "chatRooms", fetch = FetchType.EAGER)
+	@ManyToMany(mappedBy = "chatRooms", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private Set<User> users = new HashSet<>();
 	
-	@OneToMany(mappedBy = "chatRoom")
+	@OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<Message> messages = new ArrayList<>();
 	
 	public void addUser(User user) {

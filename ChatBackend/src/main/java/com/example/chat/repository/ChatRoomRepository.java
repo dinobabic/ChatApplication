@@ -12,17 +12,19 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.chat.domain.ChatRoom;
 
 @Repository
-public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
+public interface ChatRoomRepository extends JpaRepository<ChatRoom, String> {
 
-	@Query("SELECT cr FROM ChatRoom cr JOIN cr.users u WHERE u.username = :sender")
-    List<ChatRoom> findAllByUser(@Param("sender") String sender);
+	@Query("SELECT cr FROM ChatRoom cr WHERE cr.id LIKE CONCAT(:username, '%')")
+    List<ChatRoom> findAllByUser(@Param("username") String username);
 
 	@Transactional
     @Modifying
-    @Query("DELETE FROM ChatRoom cr " +
-            "WHERE :firstUsername MEMBER OF cr.users " +
-            "   AND :secondUsername MEMBER OF cr.users")
+    @Query("UPDATE User u SET u.chatRooms = null WHERE :chatRoomId LIKE CONCAT(u.username, '_%')")
+    void disassociateUsersFromChatRoom(@Param("chatRoomId") String chatRoomId);
 
-	void deleteChatRoomForUsers(String firstUsername, String secondUsername);
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM ChatRoom cr WHERE cr.id = :chatRoomId")
+    void deleteChatRoomById(@Param("chatRoomId") String chatRoomId);
 
 }

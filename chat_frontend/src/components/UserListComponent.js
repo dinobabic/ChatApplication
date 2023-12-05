@@ -7,10 +7,10 @@ const UserListComponent = (props) => {
     useEffect(() => {
         if (senderUsernameNotification.username !== "") {
             if (senderUsernameNotification.action === "add") {
-                document.querySelector(`.${senderUsernameNotification.username}`).classList.add("hidden");
+                document.querySelector(`.${senderUsernameNotification.username}`)?.classList.add("hidden");
             }
             else {
-                document.querySelector(`.${senderUsernameNotification.username}`).classList.remove("hidden");
+                document.querySelector(`.${senderUsernameNotification.username}`)?.classList.remove("hidden");
             }
         }
     }, [senderUsernameNotification]);

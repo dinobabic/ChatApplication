@@ -18,7 +18,11 @@ public class UserService {
 	private final UserRepository repository;
 	
 	public User findByUsername(String username) {
-		return repository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException());
+		try {
+			return repository.findByUsername(username).orElseThrow(() -> new EntityNotFoundException());
+		} catch (Exception e) {
+			return null;
+		}
 	}
 	
 	public User save(User user) {

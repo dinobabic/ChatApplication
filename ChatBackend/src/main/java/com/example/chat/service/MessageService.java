@@ -27,7 +27,8 @@ public class MessageService {
 
 	public List<MessageDto> findMessagesForSenderAndReceiver(String sender, String receiver) {
 		List<MessageDto> messageDtos = new ArrayList<>();
-		List<Message> messages = repository.findMessagesBySenderAndReceiver(sender, receiver);
+		String id = sender + "_" + receiver;
+		List<Message> messages = repository.findMessagesBySenderAndReceiver(id);
 		for (Message message : messages) {
 			messageDtos.add(MessageDto.builder()
 					.senderUsername(message.getSender().getUsername().equals(sender) ? sender : receiver)
@@ -40,7 +41,8 @@ public class MessageService {
 	}
 
 	public void deleteMessagesForUsers(String firstUsername, String secondUsername) {
-		repository.deleteMessagesForUsers(firstUsername, secondUsername);
+		String id = firstUsername + "_" + secondUsername;
+		repository.deleteMessagesForUsers(id);
 	}
 
 	public void deleteMessageForUsers(String firstUsername, String secondUsername) {

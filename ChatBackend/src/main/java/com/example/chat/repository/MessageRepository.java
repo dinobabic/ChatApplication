@@ -14,16 +14,15 @@ import com.example.chat.domain.Message;
 @Repository
 public interface MessageRepository extends JpaRepository<Message, Long> {
 
-	@Query("SELECT m FROM Message m WHERE (m.sender.username = :senderUsername AND m.receiver.username = :receiverUsername) OR (m.sender.username = :receiverUsername AND m.receiver.username = :senderUsername)")
+	@Query("SELECT m FROM Message m WHERE m.chatRoom.id = :id")
     List<Message> findMessagesBySenderAndReceiver(
-            @Param("senderUsername") String senderUsername,
-            @Param("receiverUsername") String receiverUsername
+            @Param("id") String id
     );
 
-	 @Transactional
-	    @Modifying
-	    @Query("DELETE FROM Message m WHERE (m.sender.username = :firstUsername AND m.receiver.username = :secondUsername) OR (m.sender.username = :secondUsername AND m.receiver.username = :firstUsername)")
-	void deleteMessagesForUsers(String firstUsername, String secondUsername);
+	@Transactional
+	@Modifying
+	@Query("DELETE FROM Message m WHERE m.chatRoom.id = :id")
+	void deleteMessagesForUsers(String id);
 	 
 	
 	//void deleteMessageForUsers(String firstUsername, String secondUsername);

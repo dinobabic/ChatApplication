@@ -23,15 +23,8 @@ public class ChatRoomService {
 	}
 	
 	public ChatRoom getChatRoomForSenderAndReceiver(String sender, String receiver) {
-		User userSender = userRepository.findByUsername(sender).get();
-		List<ChatRoom> chatRooms = repository.findAllByUser(sender);
-		for (ChatRoom chatRoom : chatRooms) {
-			if (chatRoom.getUsers().stream().filter((user) -> user.getUsername().equals(receiver)).count() == 1) {
-				return chatRoom;
-			}
-		}
-		
-		return null;
+		String id = sender + "_" + receiver;
+		return repository.findById(id).orElseGet(() -> null);
 	}
 	
 	public List<ChatRoom> getChatRoomsForUser(String username) {
@@ -50,6 +43,8 @@ public class ChatRoomService {
 	}
 
 	public void deleteChatRoomForUsers(String firstUsername, String secondUsername) {
-		repository.deleteChatRoomForUsers(firstUsername, secondUsername);
+		String id = firstUsername + "_" + secondUsername;
+		//repository.disassociateUsersFromChatRoom(id);
+		repository.deleteChatRoomById(id);
 	}
 }

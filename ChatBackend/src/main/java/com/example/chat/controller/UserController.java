@@ -23,6 +23,7 @@ import com.example.chat.domain.MessageNotification;
 import com.example.chat.domain.User;
 import com.example.chat.dto.ChatRoomDto;
 import com.example.chat.dto.MessageDto;
+import com.example.chat.dto.StatusDto;
 import com.example.chat.dto.UserDto;
 import com.example.chat.dto.UsernameDto;
 import com.example.chat.service.ChatRoomService;
@@ -41,6 +42,13 @@ public class UserController {
 	private final ChatRoomService chatRoomService;
 	private final SimpMessagingTemplate messagingTemplate;
 	private final MessageService messageService;
+	
+	@GetMapping("/status/{username}")
+	public ResponseEntity<?> getUserSatatusByUsername(@PathVariable String username) {
+		return ResponseEntity.ok(StatusDto.builder()
+				.status(userService.findByUsername(username).getStatus())
+				.build());
+	}
 	
 	@GetMapping
 	public List<UserDto> getUsers() {
@@ -68,8 +76,15 @@ public class UserController {
 		ChatRoom chatRoom = new ChatRoom();
 		chatRoom.addUser(user);
 		chatRoom.addUser(userPrincipal);
+		chatRoom.setId(userPrincipal.getUsername() + "_" + username);
 		chatRoom = chatRoomService.save(chatRoom);
 		
+		chatRoom = new ChatRoom();
+		chatRoom.addUser(user);
+		chatRoom.addUser(userPrincipal);
+		chatRoom.setId(username + "_" + userPrincipal.getUsername());
+		chatRoomService.save(chatRoom);
+
 		ChatRoomDto chatRoomDto = new ChatRoomDto();
 		chatRoomDto.setUsers(chatRoom.getUsers().stream().map((userFromRoom) -> UserDto.builder()
 				.username(userFromRoom.getUsername())
@@ -102,15 +117,41 @@ public class UserController {
 	
 	@MessageMapping("/chat")
 	public void processMessage(@Payload MessageDto messageDto) {	
-		ChatRoom chatRoom = chatRoomService.getChatRoomForSenderAndReceiver(messageDto.getSenderUsername(), messageDto.getReceiverUsername());
+		ChatRoom chatRoom1 = chatRoomService.getChatRoomForSenderAndReceiver(messageDto.getSenderUsername(), messageDto.getReceiverUsername());
+		ChatRoom chatRoom2 = chatRoomService.getChatRoomForSenderAndReceiver(messageDto.getReceiverUsername(), messageDto.getSenderUsername());
+		if (chatRoom2 == null) {
+			chatRoom2 = new ChatRoom();
+			chatRoom2.addUser(userService.findByUsername(messageDto.getSenderUsername()));
+			chatRoom2.addUser(userService.findByUsername(messageDto.getReceiverUsername()));
+			chatRoom2.setId(messageDto.getReceiverUsername() + "_" + messageDto.getSenderUsername());
+			chatRoomService.save(chatRoom2);
+			ChatRoomDto chatRoomDto = new ChatRoomDto();
+			chatRoomDto.setUsers(chatRoom2.getUsers().stream().map((userFromRoom) -> UserDto.builder()
+					.username(userFromRoom.getUsername())
+					.firstName(userFromRoom.getFirstName())
+					.lastName(userFromRoom.getLastName())
+					.build()).collect(Collectors.toList()));
+			messagingTemplate.convertAndSend(
+					"/user/" + messageDto.getReceiverUsername() + "/queue/chatRoom", chatRoomDto);
+		}
 		Message message = Message.builder()
 				.receiver(userService.findByUsername(messageDto.getReceiverUsername()))
 				.sender(userService.findByUsername(messageDto.getSenderUsername()))
 				.content(messageDto.getContent())
 				.sentAt(messageDto.getSentAt())
-				.chatRoom(chatRoom)
+				.chatRoom(chatRoom1)
 				.build();
 		message = messageService.save(message);
+		
+		message = Message.builder()
+				.receiver(userService.findByUsername(messageDto.getReceiverUsername()))
+				.sender(userService.findByUsername(messageDto.getSenderUsername()))
+				.content(messageDto.getContent())
+				.sentAt(messageDto.getSentAt())
+				.chatRoom(chatRoom2)
+				.build();
+		message = messageService.save(message);
+		
 		messagingTemplate.convertAndSend(
 			"/user/" + messageDto.getReceiverUsername() + "/queue/messages",
 			MessageNotification.builder()
@@ -136,6 +177,7 @@ public class UserController {
 	
 	@DeleteMapping("/delete/chatRoom/{firstUsername}/{secondUsername}")
 	public void deleteChatRoom(@PathVariable String firstUsername, @PathVariable String secondUsername) {
+		messageService.deleteMessagesForUsers(firstUsername, secondUsername);
 		chatRoomService.deleteChatRoomForUsers(firstUsername, secondUsername);
 	}
 	

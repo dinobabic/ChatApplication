@@ -61,7 +61,7 @@ public class User implements UserDetails {
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
 	private Set<Authority> authorities = new HashSet<>();
 	
-	@ManyToMany
+	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(
 		name = "user_chatroom",
 		joinColumns = @JoinColumn(name = "user_id"),

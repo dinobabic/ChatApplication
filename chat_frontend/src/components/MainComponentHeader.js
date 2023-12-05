@@ -1,10 +1,25 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import UserImage from "../images/user-icon.png";
 import { SlOptionsVertical } from "react-icons/sl";
 import axios from 'axios';
 
 const MainComponentHeader = (props) => {
     const {username, selectedUser, jwt} = {...props};
+    const [selectedUserDB, setSelectedUserDB] = useState(null);
+
+    useEffect(() => {
+        setSelectedUserDB(null);
+        if (selectedUser) {
+            axios.get(`api/users/status/${selectedUser}`, {
+                headers: {
+                  Authorization: `Bearer ${jwt}`
+                }}
+            )
+            .then((response) => {
+                setSelectedUserDB(response.data);
+            })
+        }
+    }, [selectedUser]);
 
     const displayOptions = () => {
         const options = document.querySelector(".options");
@@ -21,21 +36,32 @@ const MainComponentHeader = (props) => {
             headers: {
               Authorization: `Bearer ${jwt}`
             }});
+        window.location.reload();
     };
 
     const deleteContact = () => {
-
+        axios.delete(`api/users/delete/chatRoom/${username}/${selectedUser}`, {
+            headers: {
+              Authorization: `Bearer ${jwt}`
+            }});
+        window.location.reload();
     };
 
     return (
         <div className='flex flex-row justify-between rounded-t-md bg-gray-50 py-3 px-10'>
             <div className='flex flex-row gap-5 items-center'>
                 <img className='rounde-full' src={UserImage} width={50} />
-                <p className='text-2xl font-semibold'>{username}</p>
+                <div className='flex flex-col'>
+                    <p className='text-2xl font-semibold'>{username}</p>
+                    <p className='text-green-500 text-xs'>ONLINE</p>
+                </div>
             </div>
-            {selectedUser && 
+            {selectedUser && selectedUserDB && 
                 <div className='flex flex-row gap-5 items-center'>
-                    <p className='text-2xl font-semibold'>{selectedUser}</p>
+                    <div className='flex flex-col'>
+                        <p className='text-2xl font-semibold'>{selectedUser}</p>
+                        <p className={`text-xs ${selectedUserDB.status === "ONLINE" ? "text-green-500" : "text-red-500"}`}>{selectedUserDB.status}</p>
+                    </div>
                     <img className='rounde-full' src={UserImage} width={50} />
                     <div className='p-1 cursor-pointer relative' onClick={displayOptions}>
                         <SlOptionsVertical />
