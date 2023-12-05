@@ -34,7 +34,7 @@ const ChatComponent = (props) => {
         }
         else if (selectedUser) {
             selectedUserRef.current = selectedUser;
-            axios.get(`api/users/messages/${username}/${selectedUser}`, {
+            axios.get(`/api/users/messages/${username}/${selectedUser}`, {
                 headers: {
                   Authorization: `Bearer ${jwt}`
                 }}

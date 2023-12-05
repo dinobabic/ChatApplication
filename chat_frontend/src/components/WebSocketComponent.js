@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
-import { wait } from '@testing-library/user-event/dist/utils';
 
 const WebSocketComponent = (props) => {
     const {subscribeTopic, subscribePublic, subscribeCustom, subscribeChatRoom,
@@ -14,7 +13,7 @@ const WebSocketComponent = (props) => {
         
         const initializeStomp = () => {
             if (!stompClient) {
-                const socket = new SockJS('http://localhost:8080/ws');
+                const socket = new SockJS('/ws');
                 const stomp = Stomp.over(socket);
                 stomp.connect({}, () => setStompClient(stomp));
             }

@@ -15,7 +15,7 @@ const SearchUsersComponent = (props) => {
             const jwtDecoded = jwtDecode(jwt);
             setUsername(jwtDecoded.username);
 
-            axios.get("api/users", {
+            axios.get("/api/users", {
                 headers: {
                   Authorization: `Bearer ${jwt}`
                 }
@@ -37,7 +37,7 @@ const SearchUsersComponent = (props) => {
 
     function addUserToChatRoom(event) {
         const key = event.target.dataset.key;
-        axios.get(`api/users/createChatRoom/${key}`, {
+        axios.get(`/api/users/createChatRoom/${key}`, {
             headers: {
               Authorization: `Bearer ${jwt}`
             }
