@@ -4,9 +4,10 @@ import Stomp from 'stompjs';
 import { wait } from '@testing-library/user-event/dist/utils';
 
 const WebSocketComponent = (props) => {
-    const {subscribeTopic, subscribePublic, subscribeCustom, 
-        onMessageReceivedTopic, onMessageReceivedPublic, onMessageReceivedCustom,
-        webSocketComponenRef, selectedUserRef, messagesRef, setMessages, children} = {...props};
+    const {subscribeTopic, subscribePublic, subscribeCustom, subscribeChatRoom,
+        onMessageReceivedTopic, onMessageReceivedPublic, onMessageReceivedCustom, onMessageReceivedChatRoom,
+        webSocketComponenRef, selectedUserRef, messagesRef, setMessages,
+        chatRoomsRef, setConnected, children} = {...props};
     const [stompClient, setStompClient] = useState(null);
 
     useEffect(() => {
@@ -27,6 +28,9 @@ const WebSocketComponent = (props) => {
 
     useEffect(() => {
         if (stompClient && stompClient.connected) {
+            if (setConnected) {
+                setConnected(true);
+            }
             if (subscribeTopic) {
                 stompClient.subscribe("/user/topic", (message) => {
                     onMessageReceivedTopic(message);
@@ -42,6 +46,12 @@ const WebSocketComponent = (props) => {
             if (subscribeCustom) {
                 stompClient.subscribe(subscribeCustom, (message) => {
                     onMessageReceivedCustom(message, selectedUserRef, messagesRef, setMessages);
+                });   
+            }
+
+            if (subscribeChatRoom) {
+                stompClient.subscribe(subscribeChatRoom, (message) => {
+                    onMessageReceivedChatRoom(message, chatRoomsRef);
                 });   
             }
         }

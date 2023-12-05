@@ -37,4 +37,19 @@ public class ChatRoomService {
 	public List<ChatRoom> getChatRoomsForUser(String username) {
 		return repository.findAllByUser(username);
 	}
+
+	public boolean checkIfRoomExists(User user, User userPrincipal) {
+		List<ChatRoom> chatRooms = getChatRoomsForUser(user.getUsername());
+		for (ChatRoom room : chatRooms) {
+			if (room.getUsers().contains(user) && room.getUsers().contains(userPrincipal)) {
+				return true;
+			}
+		}
+ 		
+		return false;
+	}
+
+	public void deleteChatRoomForUsers(String firstUsername, String secondUsername) {
+		repository.deleteChatRoomForUsers(firstUsername, secondUsername);
+	}
 }

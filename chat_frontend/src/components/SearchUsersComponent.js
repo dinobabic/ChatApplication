@@ -4,7 +4,7 @@ import { TERipple } from 'tw-elements-react';
 import axios from 'axios';
 
 const SearchUsersComponent = (props) => {
-    const {jwt, chatRooms, setChatRooms, setChange} = {...props};
+    const {jwt, chatRooms, setChatRooms, setChange, setSelectedUser} = {...props};
     const [username, setUsername] = useState("");
     const [users, setUsers] = useState([]);
     const [query, setQuery] = useState("");
@@ -43,7 +43,11 @@ const SearchUsersComponent = (props) => {
             }
         })
         .then((response) => {
-            setChange(true);
+            if (response.data !== "") {
+                setChange(true);
+            }
+            setSelectedUser(key);
+            setDisplayUsersFlag(false);
         });
     }
 

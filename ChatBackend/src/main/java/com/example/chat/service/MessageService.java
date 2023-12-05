@@ -39,4 +39,12 @@ public class MessageService {
 		return messageDtos;
 	}
 
+	public void deleteMessagesForUsers(String firstUsername, String secondUsername) {
+		repository.deleteMessagesForUsers(firstUsername, secondUsername);
+	}
+
+	public void deleteMessageForUsers(String firstUsername, String secondUsername) {
+		//repository.deleteMessageForUsers(firstUsername, secondUsername);
+	}
+
 }

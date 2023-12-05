@@ -10,6 +10,7 @@ const HomePage = (props) => {
     const [chatRooms, setChatRooms] = useState([]);
     const [usrename, setUsername] = useState("");
     const [change, setChange] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null); 
     
     useEffect(() => {
         const jwtDecoded = jwtDecode(jwt);
@@ -30,8 +31,8 @@ const HomePage = (props) => {
     return (
         <>
             <NavigationComponent jwtIsValid={jwtIsValid} jwt={jwt}/>
-            <SearchUsersComponent jwt={jwt} chatRooms={chatRooms} setChatRooms={setChatRooms} setChange={setChange}/>
-            <MainComponent chatRooms={chatRooms} username={usrename} jwt={jwt}/>
+            <SearchUsersComponent jwt={jwt} chatRooms={chatRooms} setChatRooms={setChatRooms} setChange={setChange} setSelectedUser={setSelectedUser}/>
+            <MainComponent setChange={setChange} setChatRooms={setChatRooms} chatRooms={chatRooms} username={usrename} jwt={jwt} setSelectedUser={setSelectedUser} selectedUser={selectedUser}/>
         </>
     );
 };

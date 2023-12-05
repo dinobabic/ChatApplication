@@ -4,7 +4,7 @@ import axios from 'axios';
 import WebSocketComponent from './WebSocketComponent';
 
 const ChatComponent = (props) => {
-    const {selectedUser, username, jwt} = {...props};
+    const {selectedUser, username, jwt, setChange, setNewMessageNotification} = {...props};
     const [chatMessage, setChatMessage] = useState({
         "senderUsername": "",
         "receiverUsername": "",
@@ -16,8 +16,10 @@ const ChatComponent = (props) => {
     const selectedUserRef = useRef();
     const messagesRef = useRef();
     const chatRef = useRef(null);
-    const [updateChat, setUpdateChat] = useState(true);
+    const [updateChat, setUpdateChat] = useState(false);
     const [scroll, setScroll] = useState(false);
+    const [connected, setConnected] = useState(false);
+
 
     useEffect(() => {
         if (chatRef.current) {
@@ -27,7 +29,10 @@ const ChatComponent = (props) => {
     }, [chatRef.current, messagesRef.current, scroll, setScroll]);
 
     useEffect(() => {
-        if (selectedUser) {
+        if (updateChat) {
+            setUpdateChat(false);
+        }
+        else if (selectedUser) {
             selectedUserRef.current = selectedUser;
             axios.get(`api/users/messages/${username}/${selectedUser}`, {
                 headers: {
@@ -48,6 +53,9 @@ const ChatComponent = (props) => {
 
     function sendMessage(event) {
         event.preventDefault();
+        if (chatMessage.content === "") {
+            return;
+        }
         let message = {...chatMessage};
         message.senderUsername = username;
         message.receiverUsername = selectedUser;
@@ -79,22 +87,37 @@ const ChatComponent = (props) => {
             messagesRef.current = userIChatWithMessagesRef.current;
             setUpdateChat(true);
         }
+        else {
+            setNewMessageNotification({
+                "username": newMessage.senderUsername,
+                "action": "remove"
+            });
+        }
     }
+
+    function onMessageReceivedChatRoom(message) {
+        setChange(true);
+    }
+
 
     return (
         <>
-            <WebSocketComponent subscribeTopic={"/user/topic"} subscribePublic={"/user/public"} subscribeCustom={`/user/${username}/queue/messages`} 
-                        onMessageReceivedTopic={onMessageReceivedTopic} onMessageReceivedPublic={onMessageReceivedPublic} 
+            { !connected  ?
+                <WebSocketComponent subscribeTopic={"/user/topic"} subscribePublic={"/user/public"} 
+                        subscribeCustom={`/user/${username}/queue/messages`} subscribeChatRoom={`/user/${username}/queue/chatRoom`} 
+                        onMessageReceivedTopic={onMessageReceivedTopic} onMessageReceivedPublic={onMessageReceivedPublic}
+                        onMessageReceivedChatRoom={onMessageReceivedChatRoom} setConnected={setConnected} 
                         onMessageReceivedCustom={onMessageReceivedCustom} webSocketComponenRef={webSocketComponenRef} selectedUserRef={selectedUserRef}
-                        messagesRef={messagesRef} setMessages={setMessages}></WebSocketComponent>
+                        messagesRef={messagesRef} setMessages={setMessages} ></WebSocketComponent>
+                    : <></>}
             {selectedUser ? 
-                <div className='flex flex-col justify-between w-3/5 px-4'>
-                    <div ref={chatRef} className='chat-div flex flex-col gap-4 overflow-y-auto py-4'>
+                <div className='flex flex-col justify-between w-4/6 px-4'>
+                    <div ref={chatRef} className='chat-div flex flex-col gap-4 overflow-y-auto py-4 scrollbar-thin scrollbar-thumb-gray-200'>
                         {messages.map((message, index) => {
                             const date = new Date(message.sentAt);
                             return (
                                 <div key={index} className={`flex flex-row gap-6 justify-between max-w-fit rounded-lg shadow-lg px-6 py-2 ${message.senderUsername === username ? "self-end justify-end" : ""}`}>
-                                    <p className='text-sm font-semibold'>{message.content}</p>
+                                    <p className='text-sm font-semibold max-w-4/5 break-all'>{message.content}</p>
                                     <p className='text-xs self-end justify-end'>{date.getHours().toString().padStart(2, "0")}:{date.getMinutes().toString().padStart(2, "0")}</p>
                                 </div>
                             );

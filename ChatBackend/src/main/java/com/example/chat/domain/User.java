@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 import org.springframework.security.core.userdetails.UserDetails;
@@ -109,5 +110,22 @@ public class User implements UserDetails {
 	@Override
 	public boolean isEnabled() {
 		return true;
+	}
+	
+	@Override
+	public int hashCode() {
+		return Objects.hash(getUsername());
+	}
+	
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof User) {
+			User otherUser = (User)other;
+			if (otherUser.getUsername().equals(this.getUsername())) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }

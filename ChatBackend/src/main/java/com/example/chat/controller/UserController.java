@@ -11,6 +11,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,9 +61,12 @@ public class UserController {
 	@GetMapping("/createChatRoom/{username}")
 	public ResponseEntity<ChatRoomDto> createChatRoom(@PathVariable String username, @AuthenticationPrincipal User principal) {
 		User user = userService.findByUsername(username);
+		User userPrincipal = userService.findByUsername(principal.getUsername());
+		if (chatRoomService.checkIfRoomExists(user, userPrincipal)) {
+			return null;
+		}
 		ChatRoom chatRoom = new ChatRoom();
 		chatRoom.addUser(user);
-		User userPrincipal = userService.findByUsername(principal.getUsername());
 		chatRoom.addUser(userPrincipal);
 		chatRoom = chatRoomService.save(chatRoom);
 		
@@ -72,6 +76,8 @@ public class UserController {
 				.firstName(userFromRoom.getFirstName())
 				.lastName(userFromRoom.getLastName())
 				.build()).collect(Collectors.toList()));
+		messagingTemplate.convertAndSend(
+				"/user/" + username + "/queue/chatRoom", chatRoomDto);
 		return ResponseEntity.ok(chatRoomDto);
 	}
 	
@@ -122,6 +128,21 @@ public class UserController {
     ) {
         return ResponseEntity.ok(messageService.findMessagesForSenderAndReceiver(sender, receiver));
     }
+	
+	@DeleteMapping("/delete/messages/{firstUsername}/{secondUsername}")
+	public void deleteMessages(@PathVariable String firstUsername, @PathVariable String secondUsername) {
+		messageService.deleteMessagesForUsers(firstUsername, secondUsername);
+	}
+	
+	@DeleteMapping("/delete/chatRoom/{firstUsername}/{secondUsername}")
+	public void deleteChatRoom(@PathVariable String firstUsername, @PathVariable String secondUsername) {
+		chatRoomService.deleteChatRoomForUsers(firstUsername, secondUsername);
+	}
+	
+	/*@DeleteMapping("/delete/message/{firstUsername}/{secondUsername}")
+	public void deleteMessage(@PathVariable String firstUsername, @PathVariable String secondUsername) {
+		messageService.deleteMessageForUsers(firstUsername, secondUsername);
+	}*/
 	
 	@MessageMapping("/user.disconnectUser")
     @SendTo("/user/topic")
