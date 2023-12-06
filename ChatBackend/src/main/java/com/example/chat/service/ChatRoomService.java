@@ -34,7 +34,8 @@ public class ChatRoomService {
 	public boolean checkIfRoomExists(User user, User userPrincipal) {
 		List<ChatRoom> chatRooms = getChatRoomsForUser(user.getUsername());
 		for (ChatRoom room : chatRooms) {
-			if (room.getUsers().contains(user) && room.getUsers().contains(userPrincipal)) {
+			String[] roomIdSplit = room.getId().split("_");
+			if (roomIdSplit[0].equals(userPrincipal.getUsername()) && roomIdSplit[1].equals(user.getUsername())) {
 				return true;
 			}
 		}

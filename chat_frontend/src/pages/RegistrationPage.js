@@ -16,7 +16,7 @@ const RegistrationPage = (props) => {
 
     return (
         <>
-            <NavigationComponent />
+            <NavigationComponent displayLogin={true} />
             <RegistrationComponent setJwt={setJwt} setReload={setReload}/>
         </>
     );

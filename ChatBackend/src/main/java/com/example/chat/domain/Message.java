@@ -3,6 +3,7 @@ package com.example.chat.domain;
 import java.util.Date;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -27,13 +28,13 @@ public class Message {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	private User receiver;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	private User sender;
 	
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	private ChatRoom chatRoom;
 	
 	private Date sentAt;
@@ -41,4 +42,6 @@ public class Message {
 	private Date seenAt;
 	
 	private String content;
+	
+	private Date messageIdentification;
 }

@@ -7,25 +7,27 @@ import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.chat.domain.ChatRoom;
 import com.example.chat.domain.Message;
 import com.example.chat.domain.MessageNotification;
+import com.example.chat.domain.MessageSeenNotification;
 import com.example.chat.domain.User;
 import com.example.chat.dto.ChatRoomDto;
+import com.example.chat.dto.DeleteMessageDto;
 import com.example.chat.dto.MessageDto;
 import com.example.chat.dto.StatusDto;
 import com.example.chat.dto.UserDto;
-import com.example.chat.dto.UsernameDto;
 import com.example.chat.service.ChatRoomService;
 import com.example.chat.service.MessageService;
 import com.example.chat.service.UserService;
@@ -42,6 +44,11 @@ public class UserController {
 	private final ChatRoomService chatRoomService;
 	private final SimpMessagingTemplate messagingTemplate;
 	private final MessageService messageService;
+	
+	@GetMapping("/profileImage/{username}")
+	public ResponseEntity<?> getUserProfileImage(@PathVariable String username) {
+		return ResponseEntity.ok(userService.getProfileImage(username));
+	}
 	
 	@GetMapping("/status/{username}")
 	public ResponseEntity<?> getUserSatatusByUsername(@PathVariable String username) {
@@ -140,6 +147,7 @@ public class UserController {
 				.content(messageDto.getContent())
 				.sentAt(messageDto.getSentAt())
 				.chatRoom(chatRoom1)
+				.messageIdentification(messageDto.getSentAt())
 				.build();
 		message = messageService.save(message);
 		
@@ -149,6 +157,7 @@ public class UserController {
 				.content(messageDto.getContent())
 				.sentAt(messageDto.getSentAt())
 				.chatRoom(chatRoom2)
+				.messageIdentification(messageDto.getSentAt())
 				.build();
 		message = messageService.save(message);
 		
@@ -170,6 +179,15 @@ public class UserController {
         return ResponseEntity.ok(messageService.findMessagesForSenderAndReceiver(sender, receiver));
     }
 	
+	@PutMapping("/updateMessages")
+	public void updateMessagesSeened(@RequestBody List<MessageDto> messageDtos) {
+		messageService.updateMessagesSeened(messageDtos);
+		messagingTemplate.convertAndSend(
+			"/user/" + messageDtos.get(0).getSenderUsername() + "/queue/messages",
+			MessageSeenNotification.builder().messageSeen("Messages were seen.").build()
+		);
+	}
+	
 	@DeleteMapping("/delete/messages/{firstUsername}/{secondUsername}")
 	public void deleteMessages(@PathVariable String firstUsername, @PathVariable String secondUsername) {
 		messageService.deleteMessagesForUsers(firstUsername, secondUsername);
@@ -181,14 +199,15 @@ public class UserController {
 		chatRoomService.deleteChatRoomForUsers(firstUsername, secondUsername);
 	}
 	
-	/*@DeleteMapping("/delete/message/{firstUsername}/{secondUsername}")
-	public void deleteMessage(@PathVariable String firstUsername, @PathVariable String secondUsername) {
-		messageService.deleteMessageForUsers(firstUsername, secondUsername);
-	}*/
+	@PutMapping("/delete/message")
+	public ResponseEntity<?> deleteMessageForOneUser(@RequestBody DeleteMessageDto deleteMessageDto) {
+		messageService.deleteMessage(deleteMessageDto);
+		return ResponseEntity.ok(deleteMessageDto);
+	}
 	
-	@MessageMapping("/user.disconnectUser")
-    @SendTo("/user/topic")
-    public void disconnect(@Payload UsernameDto usernameDto) {
-        userService.disconnect(usernameDto);
-    }
+	@PutMapping("/deleteForEveryone/message")
+	public ResponseEntity<?> deleteMessageForBothUsers(@RequestBody DeleteMessageDto deleteMessageDto) {
+		messageService.deleteMessageForBothUsers(deleteMessageDto);
+		return ResponseEntity.ok(deleteMessageDto);
+	}
 }

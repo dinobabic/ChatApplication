@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import WebSocketComponent from './WebSocketComponent';
+import axios from 'axios';
+import { wait } from '@testing-library/user-event/dist/utils';
 
 const RegistrationComponent = (props) => {
     const {setJwt, setReload} = {...props};
@@ -8,8 +10,9 @@ const RegistrationComponent = (props) => {
         "password": "",
         "email": "",
         "firstName": "",
-        "lastName": "",
+        "lastName": ""
     });
+    const [profileImage, setProfileImage] = useState("");
     const [error, setError] = useState(false);
     const webSocketComponenRef = useRef(null);
 
@@ -17,9 +20,24 @@ const RegistrationComponent = (props) => {
         setUser(user => (
             {
                 ...user,
-                [field]: value
+                [field]: value.trim()
             }
         ));
+    }
+
+    function updateProfileImage(event) {
+        const profileImageLabel = document.querySelector(".profile-image-label");
+        profileImageLabel.textContent = "Profile Image is Selected";
+
+        const reader = new FileReader();
+        if (event.target.files[0])  {
+            reader.readAsDataURL(event.target.files[0]);
+            reader.onload = (event) => {
+                setProfileImage(event.target.result);
+            }
+        }
+
+        event.target.value = "";
     }
 
     useEffect(( )=> {
@@ -31,11 +49,23 @@ const RegistrationComponent = (props) => {
         }
     }, [error, setError]);
 
-    function register(event) {
+    async function register(event) {
         event.preventDefault();
         let newUser = user;
         newUser["userId"] = user.username;
-        webSocketComponenRef.current.register(newUser);
+        if (!validateInput()) {
+            return;   
+        }
+        webSocketComponenRef.current.register(newUser, profileImage);
+        await wait(500);
+        axios.post("api/auth/register/uploadProfileImage", {
+            "username": user.username,
+            "profileImage": profileImage
+        });
+    }
+
+    function timeout(delay) {
+        return new Promise( res => setTimeout(res, delay) );
     }
 
     function onMessageReceivedTopic(message) {
@@ -49,13 +79,50 @@ const RegistrationComponent = (props) => {
         }
     } 
 
+    function validateInput() {
+        let returnValue = true;
+        if (user.username === "") {
+            returnValue = false;
+        }
+        if (user.password === "") {
+            returnValue = false;
+        }
+        if (!validateEmail(user.email)) {
+            returnValue = false;
+        }
+        if (user.firstName === "") {
+            returnValue = false;
+        }
+        if (user.lastName === "") {
+            returnValue = false;
+        }
+        if (profileImage === "") {
+            returnValue = false;
+        }
+        if (!returnValue) {
+            const validationError = document.querySelector(".validation-error");
+            validationError.classList.remove("hidden");
+            validationError.classList.add("flex");
+        }
+
+        return returnValue;
+    }
+
+    const validateEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+      };
+
     return (
         <div className='flex-row mx-auto justify-center w-2/5 my-20 rounded-lg shadow-lg py-5 px-8'>
             <div className='flex justify-center mb-6'>
                 <p className='text-3xl font-semibold'>Please Register</p>
             </div>
-            <div className='hidden justify-center error'>
-                <p className='text-xl text-red-500'>User with given username already exists!</p>
+            <div className='hidden justify-center error mb-4'>
+                <p className='text-xl text-red-500'>User with given username or email already exists!</p>
+            </div>
+            <div className='hidden justify-center validation-error mb-4'>
+                <p className='text-xl text-red-500'>Neither of values can be blank. Email must be in correct format!</p>
             </div>
             <form>
                 <div className='flex flex-col gap-2 mb-5'>
@@ -101,6 +168,17 @@ const RegistrationComponent = (props) => {
                         value={user.lastName}
                         onChange={(event) => updateUser("lastName", event.target.value)}
                         className='focus:outline-none shadow-md rounded-md py-1 px-4 text-xl w-4/5'/>
+                </div>
+                <div className='flex flex-col gap-2 mb-5'>
+                    <label htmlFor='profileImage' className="profile-image-label shadow-md rounded-md py-3 px-4 w-3/5 font-semibold text-center cursor-pointer text-xl mb-8">
+                        Choose Profile Image
+                        <input type='file'
+                            id='profileImage'
+                            accept='image/*'
+                            onInput={(event) => updateProfileImage(event)}
+                            onClick={(event) => event.currentTarget.value = null}
+                            className='hidden'/>
+                    </label>
                 </div>
                 <div className='flex justify-center'>
                     <WebSocketComponent subscribeTopic={"/user/topic"} onMessageReceivedTopic={onMessageReceivedTopic} webSocketComponenRef={webSocketComponenRef}>

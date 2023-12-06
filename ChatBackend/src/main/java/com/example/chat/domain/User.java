@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
+import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -23,7 +24,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -35,7 +35,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-@EqualsAndHashCode
 public class User implements UserDetails {
 	
 	@Id
@@ -57,6 +56,10 @@ public class User implements UserDetails {
 	private Date lastTimeActive;
 	
 	private String status;
+	
+	@Basic(fetch = FetchType.LAZY)
+	@Column(length = 16777215)
+	private String profileImage;
 	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
 	private Set<Authority> authorities = new HashSet<>();

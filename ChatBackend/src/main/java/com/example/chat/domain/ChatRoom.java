@@ -27,7 +27,7 @@ public class ChatRoom {
 	@ManyToMany(mappedBy = "chatRooms", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
 	private Set<User> users = new HashSet<>();
 	
-	@OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "chatRoom", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<Message> messages = new ArrayList<>();
 	
 	public void addUser(User user) {

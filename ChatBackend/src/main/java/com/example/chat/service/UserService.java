@@ -39,5 +39,10 @@ public class UserService {
 		user.setStatus("OFFLINE");
 		repository.save(user);
 	}
+
+	public Object getProfileImage(String username) {
+		User user = repository.findByUsername(username).get();
+		return user.getProfileImage();
+	}
 	
 }

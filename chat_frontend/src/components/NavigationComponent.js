@@ -7,7 +7,7 @@ import WebSocketComponent from './WebSocketComponent';
 
 const NavigationComponent = (props) => {
     const cookies = new Cookies();
-    let {jwtIsValid, jwt} = {...props};
+    let {jwtIsValid, jwt, displayLogin} = {...props};
     const [username, setUsername] = useState("");
     const navigate = useNavigate();
     const webSocketComponenRef = useRef(null);
@@ -31,6 +31,10 @@ const NavigationComponent = (props) => {
         navigate("/register");
     }
 
+    function login() {
+        navigate("/login");
+    }
+
     return (
         <div className='flex bg-green-500 h-24 justify-between px-20 py-8 shadow-xl'>
             <div className='flex gap-3 items-center'>
@@ -44,7 +48,8 @@ const NavigationComponent = (props) => {
                     <p className='text-white text-xl cursor-pointer hover:border-b-2' onClick={logout}>Log Out</p>
                 </WebSocketComponent>
             }
-            {!jwtIsValid && <p className='text-white text-xl cursor-pointer hover:border-b-2' onClick={register}>Register</p>}
+            {!jwtIsValid && !displayLogin && <p className='text-white text-xl cursor-pointer hover:border-b-2' onClick={register}>Register</p>}
+            {!jwtIsValid && displayLogin && <p className='text-white text-xl cursor-pointer hover:border-b-2' onClick={login}>Log In</p>}
         </div>
     );
 };

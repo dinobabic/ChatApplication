@@ -1,7 +1,8 @@
+import axios from 'axios';
+import { async } from 'q';
 import React, { useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
-import { wait } from '@testing-library/user-event/dist/utils';
 
 const WebSocketComponent = (props) => {
     const {subscribeTopic, subscribePublic, subscribeCustom, subscribeChatRoom,
@@ -16,6 +17,7 @@ const WebSocketComponent = (props) => {
             if (!stompClient) {
                 const socket = new SockJS('http://localhost:8080/ws');
                 const stomp = Stomp.over(socket);
+                //stomp.debug = null; // prevents stomp from printing messages to console
                 stomp.connect({}, () => setStompClient(stomp));
             }
         }
@@ -45,7 +47,7 @@ const WebSocketComponent = (props) => {
 
             if (subscribeCustom) {
                 stompClient.subscribe(subscribeCustom, (message) => {
-                    onMessageReceivedCustom(message, selectedUserRef, messagesRef, setMessages);
+                    onMessageReceivedCustom(message, selectedUserRef, messagesRef);
                 });   
             }
 

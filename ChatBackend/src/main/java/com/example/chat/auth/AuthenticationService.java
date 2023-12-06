@@ -67,4 +67,10 @@ public class AuthenticationService {
 		userService.save(user);
 	}
 
+	public void uploadProfileImage(RegisterProfileImageRequest profileImageRequest) {
+		User user = userService.findByUsername(profileImageRequest.getUsername());
+		user.setProfileImage(profileImageRequest.getProfileImage());
+		userService.save(user);
+	}
+
 }

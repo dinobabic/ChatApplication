@@ -4,13 +4,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.chat.config.JwtService;
+import com.example.chat.domain.UserActionNotification;
 import com.example.chat.dto.UsernameDto;
 
 import lombok.RequiredArgsConstructor;
@@ -23,28 +27,59 @@ public class AuthenticationController {
 	
 	private final JwtService jwtService;
 	private final AuthenticationService authService;
+	private final SimpMessagingTemplate messagingTemplate;
 	
-	@MessageMapping("register/user.addUser")
+	@MessageMapping(value="register/user.addUser")
 	@SendTo("/user/topic")
 	public ResponseEntity<?> register(@Payload RegisterRequest request) {
-		return ResponseEntity.ok(authService.register(request));
+		AuthenticationResponse response = authService.register(request);
+		if (!response.getToken().equals("")) {
+			messagingTemplate.convertAndSend("/user/public", 
+					UserActionNotification.builder()
+					.username(request.getUsername())
+					.status("ONLINE")
+					.build()
+			);
+		}
+		
+		return ResponseEntity.ok(response);
+	}
+	
+	@PostMapping("/register/uploadProfileImage")
+	public void uploadProfileImage(@RequestBody RegisterProfileImageRequest profileImageRequest) {
+		authService.uploadProfileImage(profileImageRequest);
 	}
 	
 	@MessageMapping("authenticate/user.addUser")
 	@SendTo("/user/topic")
 	public ResponseEntity<AuthenticationResponse> authenticate(
 	           @Payload AuthenticationRequest request) {
-		return ResponseEntity.ok(authService.authenticate(request));
+		AuthenticationResponse response = authService.authenticate(request);
+		if (!response.getToken().equals("")) {
+			messagingTemplate.convertAndSend("/user/public", 
+					UserActionNotification.builder()
+					.username(request.getUsername())
+					.status("ONLINE")
+					.build()
+			);
+		}
+		
+		return ResponseEntity.ok(response);
 	}
 	
-	@MessageMapping("/user.discnonnectUser")
-	@SendTo("/user/topic")
+	@MessageMapping("/user.disconnectUser")
 	public void disconnect(@Payload UsernameDto usernameDto) {
 		authService.disconnect(usernameDto);
+		messagingTemplate.convertAndSend("/user/public", 
+				UserActionNotification.builder()
+				.username(usernameDto.getUsername())
+				.status("OFFLINE")
+				.build()
+		);
 	}
 
     @GetMapping("/validate")
-    public ResponseEntity<?> validateToken(@RequestParam String token	) {
+    public ResponseEntity<?> validateToken(@RequestParam String token) {
         boolean validToken = jwtService.isTokenExpired(token);
         return ResponseEntity.ok(!validToken);
     }

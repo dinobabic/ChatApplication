@@ -1,4 +1,4 @@
-package com.example.chat.domain;
+package com.example.chat.dto;
 
 import java.util.Date;
 
@@ -10,14 +10,12 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class MessageNotification {
-	
-	private Date sentAt;
+@NoArgsConstructor
+@AllArgsConstructor
+public class DeleteMessageDto {
+
+	private Date messageIdentification;
 	private String senderUsername;
 	private String receiverUsername;
-	private String content;
-	private Date messageIdentification;
 }

@@ -1,5 +1,7 @@
 package com.example.chat.dto;
-import java.util.Date;
+
+
+import java.sql.Date;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,12 +14,7 @@ import lombok.Setter;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MessageDto {
+public class MessageIdentificationDto {
 
-	private String senderUsername;
-	private String receiverUsername;
 	private Date sentAt;
-	private String content;
-	private Date seenAt;
-	private Date messageIdentification;
 }
