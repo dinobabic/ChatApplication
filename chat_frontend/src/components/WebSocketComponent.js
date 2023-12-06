@@ -13,7 +13,7 @@ const WebSocketComponent = (props) => {
         
         const initializeStomp = () => {
             if (!stompClient) {
-                const socket = new SockJS('https://kajimaapp.onrender.com/ws');
+                const socket = new SockJS('https://kajimaapp.onrender.com/ws', null, { timeout: 20000 });
                 const stomp = Stomp.over(socket);
                 stomp.connect({}, () => setStompClient(stomp));
             }
