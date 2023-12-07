@@ -45,9 +45,9 @@ public class AuthenticationController {
 		return ResponseEntity.ok(response);
 	}
 	
-	@PostMapping("/register/uploadProfileImage")
-	public void uploadProfileImage(@RequestBody RegisterProfileImageRequest profileImageRequest) {
-		authService.uploadProfileImage(profileImageRequest);
+	@PostMapping("/register/uploadProfileImage/{username}")
+	public void uploadProfileImage(@RequestBody RegisterProfileImageRequest request) {
+		authService.uploadProfileImage(request);
 	}
 	
 	@MessageMapping("authenticate/user.addUser")

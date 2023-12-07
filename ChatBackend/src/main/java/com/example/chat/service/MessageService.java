@@ -40,9 +40,10 @@ public class MessageService {
 					.sentAt(message.getSentAt())
 					.seenAt(message.getSeenAt())
 					.messageIdentification(message.getMessageIdentification())
+					.image(message.getImage())
 					.build());
 		}
-		return messageDtos;
+		return messageDtos.subList(messageDtos.size() - 30, messageDtos.size());
 	}
 
 	public void deleteMessagesForUsers(String firstUsername, String secondUsername) {

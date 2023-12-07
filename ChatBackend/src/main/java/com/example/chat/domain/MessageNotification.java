@@ -20,4 +20,5 @@ public class MessageNotification {
 	private String receiverUsername;
 	private String content;
 	private Date messageIdentification;
+	private String image;
 }

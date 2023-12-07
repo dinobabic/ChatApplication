@@ -47,6 +47,7 @@ public class UserController {
 	
 	@GetMapping("/profileImage/{username}")
 	public ResponseEntity<?> getUserProfileImage(@PathVariable String username) {
+		System.out.println("Getting profile image.");
 		return ResponseEntity.ok(userService.getProfileImage(username));
 	}
 	
@@ -148,6 +149,7 @@ public class UserController {
 				.sentAt(messageDto.getSentAt())
 				.chatRoom(chatRoom1)
 				.messageIdentification(messageDto.getSentAt())
+				.image(messageDto.getImage())
 				.build();
 		message = messageService.save(message);
 		
@@ -158,17 +160,20 @@ public class UserController {
 				.sentAt(messageDto.getSentAt())
 				.chatRoom(chatRoom2)
 				.messageIdentification(messageDto.getSentAt())
+				.image(messageDto.getImage())
 				.build();
 		message = messageService.save(message);
 		
 		messagingTemplate.convertAndSend(
-			"/user/" + messageDto.getReceiverUsername() + "/queue/messages",
-			MessageNotification.builder()
-				.senderUsername(message.getSender().getUsername())
-				.receiverUsername(message.getReceiver().getUsername())
-				.content(message.getContent())
-				.sentAt(messageDto.getSentAt())
-				.build());
+				"/user/" + messageDto.getReceiverUsername() + "/queue/messages",
+				MessageNotification.builder()
+					.senderUsername(message.getSender().getUsername())
+					.receiverUsername(message.getReceiver().getUsername())
+					.content(message.getContent())
+					.sentAt(messageDto.getSentAt())
+					.image(messageDto.getImage())
+					.messageIdentification(message.getMessageIdentification())
+					.build());
 	}
 	
 	@GetMapping("/messages/{sender}/{receiver}")

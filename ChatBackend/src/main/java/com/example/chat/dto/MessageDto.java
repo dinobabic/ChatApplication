@@ -20,4 +20,5 @@ public class MessageDto {
 	private String content;
 	private Date seenAt;
 	private Date messageIdentification;
+	private String image;
 }

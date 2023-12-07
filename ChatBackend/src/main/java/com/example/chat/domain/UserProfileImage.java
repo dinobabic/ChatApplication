@@ -1,7 +1,5 @@
 package com.example.chat.domain;
 
-import java.util.Date;
-
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,7 +7,6 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,35 +16,18 @@ import lombok.Setter;
 
 @Entity
 @Table
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class Message {
+public class UserProfileImage {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 	
-	@ManyToOne(fetch = FetchType.LAZY)
-	private User receiver;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	private User sender;
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	private ChatRoom chatRoom;
-	
-	private Date sentAt;
-	
-	private Date seenAt;
-	
-	private String content;
-	
-	private Date messageIdentification;
-	
-	@Column(name = "image", columnDefinition = "TEXT")
+	@Column(name = "profile_image", columnDefinition = "TEXT")
 	@Basic(fetch = FetchType.LAZY)
-	private String image;
+	private String profileImage;
 }

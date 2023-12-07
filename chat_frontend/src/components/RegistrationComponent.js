@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import WebSocketComponent from './WebSocketComponent';
 import axios from 'axios';
-import { wait } from '@testing-library/user-event/dist/utils';
 
 const RegistrationComponent = (props) => {
     const {setJwt, setReload} = {...props};
@@ -13,8 +12,11 @@ const RegistrationComponent = (props) => {
         "lastName": ""
     });
     const [profileImage, setProfileImage] = useState("");
+    const profileImageRef = useRef();
+    const userRef = useRef();
     const [error, setError] = useState(false);
     const webSocketComponenRef = useRef(null);
+    const registeredRef = useRef(false);
 
     function updateUser(field, value) {
         setUser(user => (
@@ -34,6 +36,7 @@ const RegistrationComponent = (props) => {
             reader.readAsDataURL(event.target.files[0]);
             reader.onload = (event) => {
                 setProfileImage(event.target.result);
+                profileImageRef.current = event.target.result;
             }
         }
 
@@ -56,24 +59,25 @@ const RegistrationComponent = (props) => {
         if (!validateInput()) {
             return;   
         }
-        webSocketComponenRef.current.register(newUser, profileImage);
-        await wait(500);
-        axios.post("api/auth/register/uploadProfileImage", {
-            "username": user.username,
-            "profileImage": profileImage
-        });
+        userRef.current = newUser;
+        webSocketComponenRef.current.register(newUser);
     }
 
     function timeout(delay) {
         return new Promise( res => setTimeout(res, delay) );
     }
 
-    function onMessageReceivedTopic(message) {
+    function onMessageReceivedTopic(message, profileImage, user, registered) {
         const jwt = JSON.parse(message.body).body.token;
         if (jwt === "") {
             setError(true);
         }
-        else {
+        else if (!registered.current){
+            registered.current = true;
+            axios.post(`api/auth/register/uploadProfileImage/${user.current.username}`, {
+                "username": user.current.username,
+                "profileImage": profileImage.current
+            });
             setJwt(jwt);
             setReload(true);
         }
@@ -181,7 +185,8 @@ const RegistrationComponent = (props) => {
                     </label>
                 </div>
                 <div className='flex justify-center'>
-                    <WebSocketComponent subscribeTopic={"/user/topic"} onMessageReceivedTopic={onMessageReceivedTopic} webSocketComponenRef={webSocketComponenRef}>
+                    <WebSocketComponent subscribeTopic={"/user/topic"} onMessageReceivedTopic={onMessageReceivedTopic} webSocketComponenRef={webSocketComponenRef}
+                            profileImage={profileImageRef} user={userRef} registered={registeredRef}>
                         <button type='submit'
                             className='focus:outline-none shadow-md rounded-md py-1 px-4 text-xl w-32 bg-green-400 text-white cursor-pointer'
                             onClick={register}>Register</button>

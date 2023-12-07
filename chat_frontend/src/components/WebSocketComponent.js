@@ -8,7 +8,7 @@ const WebSocketComponent = (props) => {
     const {subscribeTopic, subscribePublic, subscribeCustom, subscribeChatRoom,
         onMessageReceivedTopic, onMessageReceivedPublic, onMessageReceivedCustom, onMessageReceivedChatRoom,
         webSocketComponenRef, selectedUserRef, messagesRef, setMessages,
-        chatRoomsRef, setConnected, children} = {...props};
+        chatRoomsRef, setConnected, profileImage, user, registered, children} = {...props};
     const [stompClient, setStompClient] = useState(null);
 
     useEffect(() => {
@@ -35,7 +35,7 @@ const WebSocketComponent = (props) => {
             }
             if (subscribeTopic) {
                 stompClient.subscribe("/user/topic", (message) => {
-                    onMessageReceivedTopic(message);
+                    onMessageReceivedTopic(message, profileImage, user, registered);
                 });
             }
 
@@ -47,7 +47,7 @@ const WebSocketComponent = (props) => {
 
             if (subscribeCustom) {
                 stompClient.subscribe(subscribeCustom, (message) => {
-                    onMessageReceivedCustom(message, selectedUserRef, messagesRef);
+                    onMessageReceivedCustom(message, selectedUserRef, messagesRef, setMessages);
                 });   
             }
 

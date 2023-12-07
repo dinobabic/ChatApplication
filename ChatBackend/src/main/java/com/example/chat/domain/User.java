@@ -9,7 +9,6 @@ import java.util.Set;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
-import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -21,6 +20,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -57,9 +57,9 @@ public class User implements UserDetails {
 	
 	private String status;
 	
-	@Basic(fetch = FetchType.LAZY)
-	@Column(length = 16777215)
-	private String profileImage;
+	@OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "profile_image_id")
+    private UserProfileImage profileImage;
 	
 	@OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
 	private Set<Authority> authorities = new HashSet<>();
@@ -81,6 +81,10 @@ public class User implements UserDetails {
 	public void addAuthority(String authority) {
 		if (authorities == null) {
 			authorities = new HashSet<>();
+		}
+		
+		if (authorities.size() == 1) {
+			return;
 		}
 		Authority newAuthority = new Authority();
 		newAuthority.setAuthority(authority);

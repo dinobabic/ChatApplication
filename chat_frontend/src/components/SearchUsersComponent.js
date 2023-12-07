@@ -4,14 +4,14 @@ import { TERipple } from 'tw-elements-react';
 import axios from 'axios';
 
 const SearchUsersComponent = (props) => {
-    const {jwt, chatRooms, setChatRooms, setChange, setSelectedUser} = {...props};
+    const {jwt, chatRooms, setChatRooms, setChange, setSelectedUser, reloadSearchUsers, setReloadSearchUsers} = {...props};
     const [username, setUsername] = useState("");
     const [users, setUsers] = useState([]);
     const [query, setQuery] = useState("");
     const [displayUsersFlag, setDisplayUsersFlag] = useState(false);
     
     useEffect(() => {
-        if (jwt !== "") {
+        if (jwt !== "" && reloadSearchUsers) {
             const jwtDecoded = jwtDecode(jwt);
             setUsername(jwtDecoded.username);
 
@@ -22,9 +22,10 @@ const SearchUsersComponent = (props) => {
             })
             .then(response => {
                 setUsers(response.data.filter(user => user.username != jwtDecoded.username));
+                setReloadSearchUsers(false);
             })
         }
-    }, []);
+    }, [reloadSearchUsers]);
 
     function updateQuery(event) {
         event.preventDefault();
