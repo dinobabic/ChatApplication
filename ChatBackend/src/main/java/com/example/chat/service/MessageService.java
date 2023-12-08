@@ -43,7 +43,11 @@ public class MessageService {
 					.image(message.getImage())
 					.build());
 		}
-		return messageDtos.subList(messageDtos.size() - 30, messageDtos.size());
+		if (messageDtos.size() > 30) {
+			return messageDtos.subList(messageDtos.size() - 30, messageDtos.size());
+		}
+		
+		return messageDtos;
 	}
 
 	public void deleteMessagesForUsers(String firstUsername, String secondUsername) {
