@@ -1,19 +1,15 @@
 package com.example.chat.auth;
 
-import java.io.IOException;
-
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import com.example.chat.config.JwtService;
 import com.example.chat.domain.User;
 import com.example.chat.domain.UserProfileImage;
 import com.example.chat.dto.UsernameDto;
-import com.example.chat.repository.UserRepository;
 import com.example.chat.service.UserProfileImageService;
 import com.example.chat.service.UserService;
 
@@ -60,6 +56,11 @@ public class AuthenticationService {
 					.build();
 		}
 		var user = userService.findByUsername(request.getUsername());
+		if (user== null) {
+			return AuthenticationResponse.builder()
+					.token("")
+					.build();
+		}
 		user.setStatus("ONLINE");
 		userService.save(user);
 		var token = jwtService.generateToken(user);

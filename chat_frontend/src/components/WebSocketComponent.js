@@ -1,5 +1,3 @@
-import axios from 'axios';
-import { async } from 'q';
 import React, { useEffect, useState } from 'react';
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
@@ -17,7 +15,7 @@ const WebSocketComponent = (props) => {
             if (!stompClient) {
                 const socket = new SockJS('http://localhost:8080/ws');
                 const stomp = Stomp.over(socket);
-                //stomp.debug = null; // prevents stomp from printing messages to console
+                stomp.debug = null;
                 stomp.connect({}, () => setStompClient(stomp));
             }
         }
