@@ -165,6 +165,7 @@ const ChatComponent = (props) => {
     function onMessageReceivedCustom(message, userIChatWithRef) {
         const newMessage = JSON.parse(message.body);
         if (newMessage?.messageSeen) {
+            console.log(newMessage);
             setUpdateChat(true);
         }
         else if (newMessage.senderUsername === userIChatWithRef.current) {

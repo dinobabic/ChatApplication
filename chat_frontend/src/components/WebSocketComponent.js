@@ -15,7 +15,7 @@ const WebSocketComponent = (props) => {
             if (!stompClient) {
                 const socket = new SockJS('http://143.110.151.190/ws');
                 const stomp = Stomp.over(socket);
-                stomp.debug = null;
+                //stomp.debug = null;
                 stomp.connect({}, () => setStompClient(stomp));
             }
         }
