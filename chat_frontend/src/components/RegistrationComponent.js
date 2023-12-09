@@ -88,9 +88,10 @@ const RegistrationComponent = (props) => {
                  }
                 }
                ).then((response) => {
-            setLoadingRegistration(true);
-			waitForRegistration(jwt);
-		});
+                    console.log(response.data);
+                    setLoadingRegistration(true);
+                    waitForRegistration(jwt);
+                });
         }
     }
 
