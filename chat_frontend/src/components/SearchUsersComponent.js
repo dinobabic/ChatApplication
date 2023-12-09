@@ -17,7 +17,8 @@ const SearchUsersComponent = (props) => {
 
             axios.get("api/users", {
                 headers: {
-                  Authorization: `Bearer ${jwt}`
+                  Authorization: `Bearer ${jwt}`,
+		  "Content-Type": "application/json"
                 }
             })
             .then(response => {
@@ -40,8 +41,9 @@ const SearchUsersComponent = (props) => {
         const key = event.target.dataset.key;
         axios.get(`api/users/createChatRoom/${key}`, {
             headers: {
-              Authorization: `Bearer ${jwt}`
-            }
+              Authorization: `Bearer ${jwt}`,
+	      "Content-Type": "application/json" 
+   		}
         })
         .then((response) => {
             if (response.data !== "") {

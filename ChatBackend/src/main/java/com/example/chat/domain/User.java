@@ -57,7 +57,7 @@ public class User implements UserDetails {
 	
 	private String status;
 	
-	@OneToOne(fetch = FetchType.LAZY)
+	@OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "profile_image_id")
     private UserProfileImage profileImage;
 	

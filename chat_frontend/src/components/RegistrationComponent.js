@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import WebSocketComponent from './WebSocketComponent';
 import axios from 'axios';
+import { wait } from '@testing-library/user-event/dist/utils';
 
 const RegistrationComponent = (props) => {
     const {setJwt, setReload} = {...props};
@@ -67,20 +68,34 @@ const RegistrationComponent = (props) => {
         return new Promise( res => setTimeout(res, delay) );
     }
 
-    function onMessageReceivedTopic(message, profileImage, user, registered) {
+    async function onMessageReceivedTopic(message, profileImage, user, registered) {
         const jwt = JSON.parse(message.body).body.token;
         if (jwt === "") {
             setError(true);
         }
         else if (!registered.current){
             registered.current = true;
-            axios.post(`api/auth/register/uploadProfileImage/${user.current.username}`, {
-                "username": user.current.username,
-                "profileImage": profileImage.current
-            });
-            setJwt(jwt);
-            setReload(true);
+            axios.post(
+            `api/auth/register/uploadProfileImage/${user.current.username}`,
+                  {
+                    "username": user.current.username,
+                    "profileImage": profileImage.current
+                  },
+                  {
+                  headers: {
+                   'Content-Type': 'application/json'
+                 }
+                }
+               ).then((response) => {
+			waitForRegistration(jwt);
+		});
         }
+    }
+
+	    async function waitForRegistration(jwt) {
+        await wait(5000);
+        setJwt(jwt);
+        setReload(true);
     } 
 
     function validateInput() {

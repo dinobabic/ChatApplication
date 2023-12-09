@@ -32,6 +32,7 @@ public class AuthenticationController {
 	@MessageMapping(value="register/user.addUser")
 	@SendTo("/user/topic")
 	public ResponseEntity<?> register(@Payload RegisterRequest request) {
+System.out.println("==========================================   I am here in registration ==========================================================");
 		AuthenticationResponse response = authService.register(request);
 		if (!response.getToken().equals("")) {
 			messagingTemplate.convertAndSend("/user/public", 
@@ -46,8 +47,11 @@ public class AuthenticationController {
 	}
 	
 	@PostMapping("/register/uploadProfileImage/{username}")
-	public void uploadProfileImage(@RequestBody RegisterProfileImageRequest request) {
+	public ResponseEntity<?> uploadProfileImage(@RequestBody RegisterProfileImageRequest request) {
+		System.out.println("==========================================   I am here ==========================================================");
+		System.out.println(request.getUsername() + " " + request.getProfileImage().length());
 		authService.uploadProfileImage(request);
+		return ResponseEntity.ok("Image uploaded.");
 	}
 	
 	@MessageMapping("authenticate/user.addUser")

@@ -53,7 +53,8 @@ const ChatComponent = (props) => {
             selectedUserRef.current = selectedUser;
             axios.get(`api/users/messages/${username}/${selectedUser}`, {
                 headers: {
-                  Authorization: `Bearer ${jwt}`
+                  Authorization: `Bearer ${jwt}`,
+		  "Content-Type": "application/json"
                 }}
             )
             .then((response) => {

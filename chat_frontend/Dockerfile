@@ -1,10 +1,12 @@
-FROM node:latest
+FROM node:latest AS builder
 
-COPY package.json package-lock.json /
-
-RUN npm install
+WORKDIR /app
 
 COPY . .
 
-# RUN npm run build
-CMD ["npm", "start"]
+RUN npm install && npm run build
+
+FROM nginx:alpine
+
+COPY --from=builder /app/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf

@@ -17,7 +17,8 @@ const MainComponentHeader = (props) => {
             else {
                 axios.get(`api/users/status/${selectedUser}`, {
                     headers: {
-                        Authorization: `Bearer ${jwt}`
+                        Authorization: `Bearer ${jwt}`,
+			"Content-Type": "application/json"
                     }}
                 )
                 .then((response) => {
@@ -41,7 +42,8 @@ const MainComponentHeader = (props) => {
     const deleteMessages = () => {
         axios.delete(`api/users/delete/messages/${username}/${selectedUser}`, {
             headers: {
-              Authorization: `Bearer ${jwt}`
+              Authorization: `Bearer ${jwt}`,
+	      "Content-Type": "application/json"
             }});
         window.location.reload();
     };
@@ -49,8 +51,9 @@ const MainComponentHeader = (props) => {
     const deleteContact = () => {
         axios.delete(`api/users/delete/chatRoom/${username}/${selectedUser}`, {
             headers: {
-              Authorization: `Bearer ${jwt}`
-            }});
+              Authorization: `Bearer ${jwt}`,
+              "Content-Type": "application/json"
+	    }});
         window.location.reload();
     };
 

@@ -22,7 +22,8 @@ const HomePage = (props) => {
         if (username) {
             axios.get(`api/users/profileImage/${username}`, {
                 headers: {
-                    Authorization: `Bearer ${jwt}`
+                    Authorization: `Bearer ${jwt}`,
+		    "Content-Type": "application/json"
                 }}
             )
             .then((response) => {
@@ -40,8 +41,9 @@ const HomePage = (props) => {
                     if (user.username!== username) {
                         const promise = axios.get(`api/users/profileImage/${user.username}`, {
                             headers: {
-                                Authorization: `Bearer ${jwt}`
-                            }
+                                Authorization: `Bearer ${jwt}`,
+                                "Content-Type": "application/json"    
+			}
                         })
                         .then((response) => ({
                                 "username": user.username,
@@ -71,7 +73,8 @@ const HomePage = (props) => {
 
         axios.get("api/users/getChatRooms", {
             headers: {
-              Authorization: `Bearer ${jwt}`
+              Authorization: `Bearer ${jwt}`,
+		"Content-Type": "application/json"
             }})
         .then(response => {
             setChatRooms(response.data);
