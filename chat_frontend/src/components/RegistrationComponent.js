@@ -88,13 +88,12 @@ const RegistrationComponent = (props) => {
                  }
                 }
                ).then((response) => {
-                    console.log(response.data);
                     setLoadingRegistration(true);
-                    setTimeout(() => {
+                    if (response.data && response.data !== "") {
+                        console.log(response.data);
                         setJwt(jwt);
                         setReload(true);
-                        setLoadingRegistration(false);
-                    });
+                    }
                 });
         }
     }
