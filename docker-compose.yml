@@ -29,7 +29,7 @@ services:
   container_postgres:
     image: postgres
     environment:
-      POSTGRES_PASSWORD: ujLG5xV4
+      POSTGRES_PASSWORD: ****
       POSTGRES_DB: chat_app
       POSTGRES_USER: postgres
     ports:
